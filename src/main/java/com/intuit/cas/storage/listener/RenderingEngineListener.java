@@ -10,14 +10,30 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.jcr.api.SlingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+//import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
+import org.apache.http.auth.AuthScope;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
+import org.apache.http.impl.client.HttpClientBuilder;
+import javax.xml.bind.DatatypeConverter;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.HttpResponse;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.impl.client.DefaultHttpClient;
+import java.util.ArrayList;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+//import org.apache.http.impl.client.HttpClient;
 
 /**
  * A component to Pricing card panels up to date
@@ -37,7 +53,7 @@ public class RenderingEngineListener implements EventListener {
     private static final String DEFAULT_PATH =  "pluto/components/content/ecommerce/productcomponent";
     private static final String DEFAULT_DIR = "/content/turbotax";
     private static final Logger log = LoggerFactory.getLogger(RenderingEngineListener.class);
-
+    ArrayList<NameValuePair> postParameters;
     @Property(label = "Product Feature", description = "Feature that identifies product node", value = DEFAULT_PRODUCT)
     private static final String PRODUCT_FEATURE =  DEFAULT_PRODUCT  ;
 
@@ -79,8 +95,9 @@ public class RenderingEngineListener implements EventListener {
         }
     }
 
+
     public void onEvent(EventIterator it) {
-       log.error("ENTERED HANDLER");
+        log.error("ENTERED HANDLER");
         while (it.hasNext()) {
             Event event = it.nextEvent();
             try {
