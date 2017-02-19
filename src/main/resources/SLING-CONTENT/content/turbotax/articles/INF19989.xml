@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<node>
+    <!--
+      You can find out more documentation on this topic
+      by following these links:
+
+        -  http://sling.apache.org/site/content-loading.html
+        -  http://jackrabbit.apache.org/node-type-notation.html
+     -->
+    <primaryNodeType>cas:article</primaryNodeType>
+
+    <property>
+        <name>docId</name>
+        <type>String</type>
+        <value>INF1998SATISHKUMAR</value>
+    </property>
+
+    <property>
+        <name>title</name>
+        <type>String</type>
+        <value>How to File Taxes with IRS Form 1099-MISC</value>
+    </property>
+    <property>
+        <name>sling:resourceType</name>
+        <type>String</type>
+        <value>turbotax/article</value>
+    </property>
+</node>
+
