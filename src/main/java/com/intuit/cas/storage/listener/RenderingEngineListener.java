@@ -115,7 +115,7 @@ public class RenderingEngineListener implements EventListener {
 
                         //hard-coding connection properties is a bad practice, but is done here to simplify the example
                         //String server = "http://localhost:8888/wordpress-2";
-                       String server ="http://192.168.100.30/wordpress";
+                       String server ="http://50.112.20.114/wordpress";
                         String uri = "/?rest_route=/wp/v2/posts/"+childNode.getProperty("post_id").getString();
                         log.error("id value:"+childNode.getProperty("post_id").getString());
                       
