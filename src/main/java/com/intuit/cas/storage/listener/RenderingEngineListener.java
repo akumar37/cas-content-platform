@@ -23,7 +23,7 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 import org.apache.http.impl.client.HttpClientBuilder;
-import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.HttpResponse;
 import org.apache.http.params.HttpParams;
@@ -95,7 +95,59 @@ public class RenderingEngineListener implements EventListener {
         }
     }
 
-
+    private void pageModified(Node childNode) throws Exception{
+       					 String server = "http://50.112.29.244/wordpress";
+                        String uri = "/?rest_route=/wp/v2/pages/"+childNode.getProperty("page_id").getString();
+                        log.error("id value:"+childNode.getProperty("page_id").getString());
+                      
+                       DefaultHttpClient httpclient = new DefaultHttpClient();
+                        String encoding = Base64.getEncoder().encodeToString(("admin:admin").getBytes());
+                        HttpPost httppost = new HttpPost(server+uri);
+                        httppost.setHeader("Authorization", "Basic " + encoding);
+                         postParameters = new ArrayList<NameValuePair>();
+                        postParameters.add(new BasicNameValuePair("title",childNode.getProperty("page_title").getString()));
+                        postParameters.add(new BasicNameValuePair("content",childNode.getProperty("page_content").getString()));
+                        httppost.setEntity(new UrlEncodedFormEntity(postParameters));
+                        log.error("title:"+childNode.getProperty("page_title").getString());
+                        log.error("Content:"+childNode.getProperty("page_content").getString());
+                        log.info("executing request " + httppost.getRequestLine());
+                        HttpResponse response = httpclient.execute(httppost);
+                      //  PostMethod post = new PostMethod("http://" + server + uri);
+                       // post.setRequestHeader("CQ-Action", "Activate");
+                       // post.setRequestHeader("CQ-Handle", handle);
+                        
+                       
+                       // post.releaseConnection();
+                        //log the results
+                         log.error("result: " + response.getStatusLine().getStatusCode());
+    }
+      private void commentModified(Node childNode) throws Exception{
+        				String server = "http://50.112.29.244/wordpress";
+                        String uri = "/?rest_route=/wp/v2/comments/"+childNode.getProperty("user_ID").getString();
+                        log.error("id value:"+childNode.getProperty("user_ID").getString());
+                      
+                       DefaultHttpClient httpclient = new DefaultHttpClient();
+                        String encoding = Base64.getEncoder().encodeToString(("admin:admin").getBytes());
+                        HttpPost httppost = new HttpPost(server+uri);
+                        httppost.setHeader("Authorization", "Basic " + encoding);
+                         postParameters = new ArrayList<NameValuePair>();
+                       
+                        postParameters.add(new BasicNameValuePair("content",childNode.getProperty("comment_content").getString()));
+                        httppost.setEntity(new UrlEncodedFormEntity(postParameters));
+                        log.error("comment_post_Id:"+childNode.getProperty("comment_post_ID").getString());
+                        log.error("Content:"+childNode.getProperty("comment_content").getString());
+                        log.info("executing request " + httppost.getRequestLine());
+                        HttpResponse response = httpclient.execute(httppost);
+                      //  PostMethod post = new PostMethod("http://" + server + uri);
+                       // post.setRequestHeader("CQ-Action", "Activate");
+                       // post.setRequestHeader("CQ-Handle", handle);
+                        
+                       
+                       // post.releaseConnection();
+                        //log the results
+                         log.error("result: " + response.getStatusLine().getStatusCode());
+    }
+    
     public void onEvent(EventIterator it) {
         log.error("ENTERED HANDLER");
         while (it.hasNext()) {
@@ -112,15 +164,21 @@ public class RenderingEngineListener implements EventListener {
                         Node childNode = session.nodeExists(invalidatedpath) ? session.getNode(invalidatedpath) : session.getNode(parentPagepath);
 
                         String page = findParentPage(childNode);
+                        if(invalidatedpath.contains("page")){
+                            pageModified(childNode);
+                        }
+                        else if(invalidatedpath.contains("post-comment")){
+                            commentModified(childNode);
+                        }
+                        else{
 
                         //hard-coding connection properties is a bad practice, but is done here to simplify the example
-                        //String server = "http://localhost:8888/wordpress-2";
                        String server ="http://50.112.29.244/wordpress";
-                        String uri = "/?rest_route=/wp/v2/posts/"+childNode.getProperty("post_id").getString();
+					   String uri = "/?rest_route=/wp/v2/posts/"+childNode.getProperty("post_id").getString();
                         log.error("id value:"+childNode.getProperty("post_id").getString());
                       
                        DefaultHttpClient httpclient = new DefaultHttpClient();
-                        String encoding = DatatypeConverter.printBase64Binary(("admin:admin").getBytes());
+                        String encoding = Base64.getEncoder().encodeToString(("admin:admin").getBytes());
                         
                         
                         
@@ -142,6 +200,7 @@ public class RenderingEngineListener implements EventListener {
                        // post.releaseConnection();
                         //log the results
                          log.error("result: " + response.getStatusLine().getStatusCode());
+                        }
                        // log.error("result: " + response.getResponseBodyAsString());
                     } catch (RepositoryException e) {
                         log.error("Repsotiry Exception : " ,e);
